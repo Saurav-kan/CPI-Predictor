@@ -1,0 +1,76 @@
+<!-- templates/forecasts/index.html -->
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>CPI Dashboard</title>
+  </head>
+  <body>
+    <h1>Next-Month CPI Forecasts</h1>
+    <button id="refresh">Refresh</button>
+
+    <form method="post">
+      {% csrf_token %}
+      <label
+        >Start year:
+        <input
+          type="number"
+          name="start_year"
+          value="{{ start_year }}"
+          min="2000"
+          max="2024"
+        />
+      </label>
+      <label
+        >End year:
+        <input
+          type="number"
+          name="end_year"
+          value="{{ end_year }}"
+          min="{{ start_year }}"
+          max="2024"
+        />
+      </label>
+      <label
+        >Months ahead:
+        <input
+          type="number"
+          name="horizon"
+          value="{{ horizon }}"
+          min="1"
+          max="24"
+        />
+      </label>
+      <button type="submit">Run Forecast</button>
+    </form>
+
+    {% if forecast_results %}
+    <h2>Predictions</h2>
+    <ul>
+      {% for date, pred in forecast_results %}
+      <li>{{ date }} → {{ pred|floatformat:2 }}</li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+
+    <ul id="forecast-list"></ul>
+
+    <script>
+      async function loadForecasts() {
+        const res = await fetch("/api/cpi/");
+        const data = await res.json();
+        const ul = document.getElementById("forecast-list");
+        ul.innerHTML = "";
+        data.forEach((item) => {
+          const li = document.createElement("li");
+          li.textContent =
+            `${item.date}: predicted=${item.predicted_cpi}` +
+            (item.actual_cpi ? `, actual=${item.actual_cpi}` : "");
+          ul.appendChild(li);
+        });
+      }
+
+      document.getElementById("refresh").onclick = loadForecasts;
+      window.onload = loadForecasts;
+    </script>
+  </body>
+</html>

@@ -30,7 +30,8 @@ Stack and Dependencies:
 To use: 
 1. Clone Repository
 2. Dowload Dependencies from requirements.txt
-3. Run
-  '''bash
-python manage.py runserver from terminal
-
+3. Run from terminal
+```bash
+python manage.py makemigrations
+python manage.py migrate
+python manage.py runserver 
